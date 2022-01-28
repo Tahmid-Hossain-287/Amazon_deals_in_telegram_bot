@@ -1,4 +1,4 @@
-import os, time
+import os, requests
 from selenium import webdriver
 from selenium.webdriver.common import action_chains
 from selenium.webdriver.common.by import By
@@ -7,8 +7,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-import traceback
 from time import sleep
+from bs4 import BeautifulSoup
 
 
 options = Options()
@@ -43,7 +43,10 @@ def launch_deals_page():
 
     deals_page.click()
 
-    url = driver.current_url
+
+def page_info():
+    # Retrive all the product information from the deals page.
+    pass
 
 # Goes to the next page in today's deal page.
 def go_next_page(page_number_to_go):
