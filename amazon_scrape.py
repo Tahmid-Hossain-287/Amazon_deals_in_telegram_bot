@@ -28,25 +28,42 @@ driver.set_window_position(250, 70, windowHandle='current')
 
 print('Driver instantiated successfully')
 
-def launch_amazon_page():
+# Launches the today's deal page.
+def launch_deals_page():
     # driver.get("https://www.amazon.it/")
     driver.get("https://www.amazon.com/")
 
     deals_page = WebDriverWait(driver, 4).until(
-        EC.presence_of_element_located(
-            # (By.XPATH, '//*[@id="nav-xshop"]/a[1]')
+        EC.element_to_be_clickable(
             (By.CSS_SELECTOR, '#nav-xshop > a:nth-child(2)')
         )
     )
-    
+
     print("deals page found")
 
     deals_page.click()
 
+    url = driver.current_url
+
+# Goes to the next page in today's deal page.
+def go_next_page(page_number_to_go):
+    for page_number in range(page_number_to_go-1):
+        next_button = WebDriverWait(driver, 4).until(
+            EC.element_to_be_clickable(
+                # (By.XPATH, '//*[@id="nav-xshop"]/a[1]')
+                (By.CLASS_NAME, 'a-last')
+            )
+        )
+
+        sleep(1.5)
+        next_button.click()
+    print('went to the next page')
+
+
 
 
 def main():
-    launch_amazon_page()
+    launch_deals_page()
 
 if __name__ == "__main__":
     main()
