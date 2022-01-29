@@ -1,4 +1,4 @@
-import os, requests
+import os, requests, random
 from selenium import webdriver
 from selenium.webdriver.common import action_chains
 from selenium.webdriver.common.by import By
@@ -11,6 +11,7 @@ from selenium.webdriver.common.keys import Keys
 from time import sleep
 from bs4 import BeautifulSoup
 
+pages_to_retrieve_upto = 2
 
 options = Options()
 # Specifying where the cookies will be stored.
@@ -28,13 +29,14 @@ driver.set_window_size(1260, 905) # Resizes the window to a specific size.
 driver.set_window_position(250, 70, windowHandle='current')
 
 print('Driver instantiated successfully')
+deal_links = []
 
 # Launches the today's deal page.
 def launch_deals_page():
     # driver.get("https://www.amazon.it/")
     driver.get("https://www.amazon.com/")
 
-    deals_page = WebDriverWait(driver, 4).until(
+    deals_page = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(
             (By.CSS_SELECTOR, '#nav-xshop > a:nth-child(2)')
         )
@@ -45,71 +47,71 @@ def launch_deals_page():
 
 def all_deals():
     # retrieve all the product information from the deals page.
-    deals = WebDriverWait(driver, 4).until(
-        EC.presence_of_all_elements_located(
-            (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
-        )
-    ) # All the items listed for sale.
-    for item in range(len(deals)):
-        deals_second_time = WebDriverWait(driver, 4).until(
-        EC.presence_of_all_elements_located(
-            (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
-        )
-    )
-        deals_second_time[item].click()
-        retrieve_affiliate_link()
-        sleep(2)
-        driver.back()
-        sleep(1)
-    # for item in deals:
-        # item.send_keys(Keys.CONTROL + 't')
-        # break
-    #     item.click()
-    #     retrieve_affiliate_link()
-    #     sleep(2)
-    #     driver.back()
-    #     sleep(1)
+    for page_number in range(pages_to_retrieve_upto):
+        deals = WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located(
+                (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
+            )
+        ) # All the items listed for sale.
+        # Repeatedly obtains affiliate link for each product.
+        for item in range(len(deals)):
+            try:
+                deals_second_time = WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located(
+                    (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
+                )
+            )
+                deals_second_time[item].click()
+                sleep(random.uniform(1.5, 2.5))
+                retrieve_affiliate_link()
+            except Exception as e:
+                print(e)
+                pass
+            driver.back() # Goes back to the deals page after obtaining the affiliate link.
+            sleep(random.uniform(1.5, 2.5))
+        go_next_page()
 
 def retrieve_affiliate_link():
     # Copies the affiliate short link and saves on deals.txt file.
-    produce_short_link = WebDriverWait(driver, 4).until(
-        EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, '#amzn-ss-text-link > span > strong > a')
+    try:
+        produce_short_link = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, '#amzn-ss-text-link > span > strong > a')
+            )
         )
-    )
-    produce_short_link.click()
-    
-    short_link = WebDriverWait(driver, 4).until(
-        EC.presence_of_element_located(
-            (By.ID, 'amzn-ss-text-shortlink-textarea')
+        produce_short_link.click()
+        sleep(random.uniform(.5, 1.1))
+        short_link_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(
+                (By.ID, 'amzn-ss-text-shortlink-textarea')
+            )
         )
-    )
-
-    with open('deals.txt', 'a') as notebook:
-        notebook.write(short_link.text + "\n")
+        short_link = short_link_element.text
+        with open('deals.txt', 'a') as notebook:
+            notebook.write(short_link + "\n")
+        # deal_links.append(short_link)
+    except Exception as e:
+        print(e)
+        pass
     
     
 # Goes to the next page in today's deal page.
-def go_next_page(page_number_to_go):
-    for page_number in range(page_number_to_go-1):
-        next_button = WebDriverWait(driver, 4).until(
-            EC.element_to_be_clickable(
-                # (By.XPATH, '//*[@id="nav-xshop"]/a[1]')
-                (By.CLASS_NAME, 'a-last')
-            )
+def go_next_page():
+    next_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(
+            # (By.XPATH, '//*[@id="nav-xshop"]/a[1]')
+            (By.CLASS_NAME, 'a-last')
         )
+    )
 
-        sleep(1.5)
-        next_button.click()
+    sleep(1.5)
+    next_button.click()
     print('went to the next page')
 
 
-
-
-def main():
-    launch_deals_page()
-    all_deals()
+    
 
 if __name__ == "__main__":
-    main()
+    launch_deals_page()
+    all_deals()
 
