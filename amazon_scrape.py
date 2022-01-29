@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.keys import Keys
 from time import sleep
 from bs4 import BeautifulSoup
 
@@ -38,16 +39,56 @@ def launch_deals_page():
             (By.CSS_SELECTOR, '#nav-xshop > a:nth-child(2)')
         )
     )
-
     print("deals page found")
-
     deals_page.click()
 
 
-def page_info():
-    # Retrive all the product information from the deals page.
-    pass
+def all_deals():
+    # retrieve all the product information from the deals page.
+    deals = WebDriverWait(driver, 4).until(
+        EC.presence_of_all_elements_located(
+            (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
+        )
+    ) # All the items listed for sale.
+    for item in range(len(deals)):
+        deals_second_time = WebDriverWait(driver, 4).until(
+        EC.presence_of_all_elements_located(
+            (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
+        )
+    )
+        deals_second_time[item].click()
+        retrieve_affiliate_link()
+        sleep(2)
+        driver.back()
+        sleep(1)
+    # for item in deals:
+        # item.send_keys(Keys.CONTROL + 't')
+        # break
+    #     item.click()
+    #     retrieve_affiliate_link()
+    #     sleep(2)
+    #     driver.back()
+    #     sleep(1)
 
+def retrieve_affiliate_link():
+    # Copies the affiliate short link and saves on deals.txt file.
+    produce_short_link = WebDriverWait(driver, 4).until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, '#amzn-ss-text-link > span > strong > a')
+        )
+    )
+    produce_short_link.click()
+    
+    short_link = WebDriverWait(driver, 4).until(
+        EC.presence_of_element_located(
+            (By.ID, 'amzn-ss-text-shortlink-textarea')
+        )
+    )
+
+    with open('deals.txt', 'a') as notebook:
+        notebook.write(short_link.text + "\n")
+    
+    
 # Goes to the next page in today's deal page.
 def go_next_page(page_number_to_go):
     for page_number in range(page_number_to_go-1):
@@ -67,6 +108,8 @@ def go_next_page(page_number_to_go):
 
 def main():
     launch_deals_page()
+    all_deals()
 
 if __name__ == "__main__":
     main()
+
