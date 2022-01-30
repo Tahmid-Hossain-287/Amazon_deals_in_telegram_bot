@@ -8,10 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException
 from time import sleep
 from bs4 import BeautifulSoup
 
-pages_to_retrieve_upto = 4
+pages_to_retrieve_upto = 1
 
 options = Options()
 # Specifying where the cookies will be stored.
@@ -33,7 +34,7 @@ print('Driver instantiated successfully')
 # Launches the today's deal page.
 def launch_deals_page():
     # driver.get("https://www.amazon.it/")
-    driver.get("https://www.amazon.com/")
+    driver.get("https://www.amazon.it/")
 
     deals_page = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(
@@ -62,12 +63,12 @@ def all_deals():
             )
                 deals_second_time[item].click()
                 sleep(random.uniform(1.5, 2.5))
+                multiple_deals_to_one_deal()
                 retrieve_affiliate_link()
             except Exception as e:
                 print(e)
                 pass
             driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
-            # driver.execute_script("window.history.go(-1)")
             sleep(random.uniform(1.5, 2.5))
         go_next_page()
 
@@ -113,6 +114,20 @@ def go_next_page():
         else:
             break
 
+# When there is a cluster of deals, it will select the first one.
+def multiple_deals_to_one_deal():
+    try:
+        items = WebDriverWait(driver, 4).until(
+                    EC.presence_of_all_elements_located(
+                        (By.CLASS_NAME, 'a-size-base.a-color-base.a-link-normal.a-text-normal')
+                    )
+                )
+
+        for i in range(1):
+            items[1].click()
+            sleep(random.uniform(.5, 1.1))
+    except TimeoutException:
+        return None # The page is a normal item page, does not contain cluster of items. Continue with the rest of the code.
 
 
     
