@@ -11,7 +11,7 @@ from selenium.webdriver.common.keys import Keys
 from time import sleep
 from bs4 import BeautifulSoup
 
-pages_to_retrieve_upto = 2
+pages_to_retrieve_upto = 4
 
 options = Options()
 # Specifying where the cookies will be stored.
@@ -29,7 +29,6 @@ driver.set_window_size(1260, 905) # Resizes the window to a specific size.
 driver.set_window_position(250, 70, windowHandle='current')
 
 print('Driver instantiated successfully')
-deal_links = []
 
 # Launches the today's deal page.
 def launch_deals_page():
@@ -44,7 +43,6 @@ def launch_deals_page():
     print("deals page found")
     deals_page.click()
 
-
 def all_deals():
     # retrieve all the product information from the deals page.
     for page_number in range(pages_to_retrieve_upto):
@@ -54,6 +52,7 @@ def all_deals():
             )
         ) # All the items listed for sale.
         # Repeatedly obtains affiliate link for each product.
+        deals_page = driver.current_url
         for item in range(len(deals)):
             try:
                 deals_second_time = WebDriverWait(driver, 10).until(
@@ -67,7 +66,8 @@ def all_deals():
             except Exception as e:
                 print(e)
                 pass
-            driver.back() # Goes back to the deals page after obtaining the affiliate link.
+            driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
+            # driver.execute_script("window.history.go(-1)")
             sleep(random.uniform(1.5, 2.5))
         go_next_page()
 
@@ -89,7 +89,6 @@ def retrieve_affiliate_link():
         short_link = short_link_element.text
         with open('deals.txt', 'a') as notebook:
             notebook.write(short_link + "\n")
-        # deal_links.append(short_link)
     except Exception as e:
         print(e)
         pass
@@ -97,16 +96,23 @@ def retrieve_affiliate_link():
     
 # Goes to the next page in today's deal page.
 def go_next_page():
+    old_link = driver.current_url
     next_button = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(
-            # (By.XPATH, '//*[@id="nav-xshop"]/a[1]')
             (By.CLASS_NAME, 'a-last')
         )
     )
 
-    sleep(1.5)
     next_button.click()
+    sleep(random.uniform(.9, 1.4))
     print('went to the next page')
+    while True: # This while loop is to ensure the change of page.
+        if old_link == driver.current_url:
+            sleep(random.uniform(1.9, 2.4))
+            continue
+        else:
+            break
+
 
 
     
@@ -114,4 +120,5 @@ def go_next_page():
 if __name__ == "__main__":
     launch_deals_page()
     all_deals()
+    
 
