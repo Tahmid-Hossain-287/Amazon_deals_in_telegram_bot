@@ -1,42 +1,15 @@
-from pdb import line_prefix
-import telegram
-from secrets import token, group_1_id
+from product_link_scrape import launch_deals_page, driver, WebDriverWait, By, EC
+import telegram, re
+from secrets import token, group_id
 from time import sleep
-import os, requests, random
-from selenium import webdriver
-from selenium.webdriver.common import action_chains
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException
-from time import sleep
-import re
 
 # Note that your bot will not be able to send more than 20 messages per minute to the same group.
 bot = telegram.Bot(token=str(token))
 updates = bot.get_updates()
-options = Options()
-# Specifying where the cookies will be stored.
-options.add_argument("--user-data-dir=C:\\Users\\Tahmid\\Programming\\telegram_bot\\cookies")
-# Silences logs on terminal and keeps terminal looking clean.
-os.environ['WDM_LOG_LEVEL'] = '0'
-# Saves driver on project directory.
-os.environ['WDM_LOCAL'] = '1'
-# Downloads and installs necessary driver version if already not done so.
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-actions = action_chains.ActionChains(driver)
-# Setting window position and size.
-driver.set_window_size(1260, 905) # Resizes the window to a specific size.
-driver.set_window_position(250, 70, windowHandle='current')
 
-# template = " 🔥🔥 23% OFF 🔥🔥 \n 🤑 SUPER SCONTO 🤑  \n 👉 Apri su Amazon amzn.to/347C4FE"
-def get_product_information(link):
+
+def get_product_information():
     try:
-        driver.get(link)
         discount_amount = WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located(
                             (By.CLASS_NAME, 'a-span12.a-color-price.a-size-base')
@@ -44,18 +17,59 @@ def get_product_information(link):
                     )
         raw_discount = str(discount_amount.text)
         discount_amount = (re.search('\((.*?)\)', raw_discount)).group(1)
-        # print(discount_amount)
-        return discount_amount
-        # with open('discount.txt', 'a') as file:
-        #     file.write(discount_amount + "\n")
-    except:
+        
+        saved_amount_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located(
+                (By.CLASS_NAME, 'a-span12.a-color-price.a-size-base')
+            )
+        )
+
+        saved_amount = re.search('^(.*?)\€', saved_amount_element.text).group(0)
+
+        original_price_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located(
+                (By.CLASS_NAME, 'a-span12.a-color-secondary.a-size-base')
+            )
+        )
+        
+        original_price = re.search('^(.*?)\€', original_price_element.text).group(0)
+        
+
+        offer_price_element = WebDriverWait(driver, 5).until(
+             EC.presence_of_element_located(
+                (By.CLASS_NAME, 'a-price.a-text-price.a-size-medium.apexPriceToPay')
+            )
+        )
+
+        offer_price = re.search('^(.*?)\€', offer_price_element.text).group(0)
+
+        return discount_amount, original_price, offer_price, saved_amount
+        # print(f' Saved money is  {saved_amount}.\n Original price was {original_price}.\n The offer price is {offer_price}.')
+        
+    except Exception as e:
+        print(e)
         pass
 
+def send_telegram_message():
+    with open('deals.txt') as file:
+        lines = file.readlines()
+        for line in lines:
+            try:
+                driver.get(line)
+                sleep(3)
+                discount = get_product_information()
+                discount_amount = discount[0]
+                original_price = discount[1]
+                offer_price = discount[2]
+                saved_amount = discount[3]
+                template = f" 🔥🔥 {discount_amount} OFF 🔥🔥\n 🤑 SUPER SCONTO 🤑\n 💣 Solo {offer_price} ❌Invece di {original_price}\n 💰💲 Risparmiare fino a {saved_amount} 💰💲\n 👉 Apri su Amazon {line}"
+                bot.send_message(text= template, chat_id=group_id)
+            except Exception as e:
+                print(e)
+                continue    
 
-with open('deals.txt') as file:
-    lines = file.readlines()
-    for line in lines:
-        discount = get_product_information(line)
-        template = f" 🔥🔥 {discount} OFF    🔥🔥 \n 🤑 SUPER SCONTO 🤑  \n 👉 Apri su Amazon {line}"
-        bot.send_message(text= template, chat_id=group_1_id)
-        sleep(3)
+            
+if __name__ == "__main__":
+    launch_deals_page()
+    send_telegram_message()
+

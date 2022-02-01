@@ -1,4 +1,4 @@
-import os, requests, random
+import os, random
 from selenium import webdriver
 from selenium.webdriver.common import action_chains
 from selenium.webdriver.common.by import By
@@ -10,9 +10,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from time import sleep
-from bs4 import BeautifulSoup
-
-pages_to_retrieve_upto = 1
 
 options = Options()
 # Specifying where the cookies will be stored.
@@ -42,34 +39,38 @@ def launch_deals_page():
     print("deals page found")
     deals_page.click()
 
-def all_deals():
-    # retrieve all the product information from the deals page.
-    for page_number in range(pages_to_retrieve_upto):
-        deals = WebDriverWait(driver, 10).until(
-            EC.presence_of_all_elements_located(
-                (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
-            )
-        ) # All the items listed for sale.
-        # Repeatedly obtains affiliate link for each product.
-        deals_page = driver.current_url
-        for item in range(len(deals)):
-            try:
-                deals_second_time = WebDriverWait(driver, 10).until(
+def all_deals(pages_to_retrieve_upto=1):
+    try:
+        # retrieve all the product information from the deals page.
+        for page_number in range(pages_to_retrieve_upto):
+            deals = WebDriverWait(driver, 10).until(
                 EC.presence_of_all_elements_located(
                     (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
                 )
-            )
-                deals_second_time[item].click()
+            ) # All the items listed for sale.
+            # Repeatedly obtains affiliate link for each product.
+            deals_page = driver.current_url
+            for item in range(len(deals)):
+                try:
+                    deals_second_time = WebDriverWait(driver, 10).until(
+                    EC.presence_of_all_elements_located(
+                        (By.CLASS_NAME, 'DealGridItem-module__dealItemContent_1vFddcq1F8pUxM8dd9FW32')
+                    )
+                )
+                    deals_second_time[item].click()
+                    sleep(random.uniform(1.5, 2.5))
+                    multiple_deals_to_one_deal() # When there is a cluster of deals, it will select the first one.
+                    retrieve_affiliate_link() # Copies the affiliate short link and saves on deals.txt file.
+                except Exception as e:
+                    print(e)
+                    pass
+                driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
                 sleep(random.uniform(1.5, 2.5))
-                multiple_deals_to_one_deal() # When there is a cluster of deals, it will select the first one.
-                retrieve_affiliate_link() # Copies the affiliate short link and saves on deals.txt file.
-            except Exception as e:
-                print(e)
-                pass
-            driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
-            sleep(random.uniform(1.5, 2.5))
-        go_next_page() # Goes to the next page in today's deal page.
-    driver.quit() # Ends the selenium session.
+            go_next_page() # Goes to the next page in today's deal page.
+        driver.quit() # Ends the selenium session.
+    except Exception as e:
+        print(e)
+        driver.quit() # Ends the selenium session
 
 def retrieve_affiliate_link():
     # Copies the affiliate short link and saves on deals.txt file.
