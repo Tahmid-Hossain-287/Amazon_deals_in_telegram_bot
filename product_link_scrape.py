@@ -133,7 +133,7 @@ def multiple_deals_to_one_deal():
     
 
 if __name__ == "__main__":
-    launch_deals_page()
+    launch_deals_page(pages_to_retrieve_upto=1)
     all_deals()
     
 

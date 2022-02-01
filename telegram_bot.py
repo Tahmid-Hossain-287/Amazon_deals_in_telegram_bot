@@ -44,7 +44,6 @@ def get_product_information():
         offer_price = re.search('^(.*?)\€', offer_price_element.text).group(0)
 
         return discount_amount, original_price, offer_price, saved_amount
-        # print(f' Saved money is  {saved_amount}.\n Original price was {original_price}.\n The offer price is {offer_price}.')
         
     except Exception as e:
         print(e)
@@ -56,7 +55,7 @@ def send_telegram_message():
         for line in lines:
             try:
                 driver.get(line)
-                sleep(3)
+                sleep(3) # Pausing is important so as not to hit the limit of telegram message limit of one message per three second.
                 discount = get_product_information()
                 discount_amount = discount[0]
                 original_price = discount[1]
@@ -67,8 +66,11 @@ def send_telegram_message():
             except Exception as e:
                 print(e)
                 continue    
+    
+    with open('deals.txt', 'w'):
+        pass
+    
 
-            
 if __name__ == "__main__":
     launch_deals_page()
     send_telegram_message()
