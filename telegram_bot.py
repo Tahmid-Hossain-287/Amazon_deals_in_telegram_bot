@@ -68,7 +68,8 @@ def send_telegram_message():
                 continue    
     
     with open('deals.txt', 'w'):
-        pass
+        pass # Clears deals.txt after sending all the advertisements.
+    driver.quit()
     
 
 if __name__ == "__main__":
