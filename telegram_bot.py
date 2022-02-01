@@ -34,7 +34,7 @@ driver.set_window_size(1260, 905) # Resizes the window to a specific size.
 driver.set_window_position(250, 70, windowHandle='current')
 
 # template = " 🔥🔥 23% OFF 🔥🔥 \n 🤑 SUPER SCONTO 🤑  \n 👉 Apri su Amazon amzn.to/347C4FE"
-def get_discount(link):
+def get_product_information(link):
     try:
         driver.get(link)
         discount_amount = WebDriverWait(driver, 5).until(
@@ -55,7 +55,7 @@ def get_discount(link):
 with open('deals.txt') as file:
     lines = file.readlines()
     for line in lines:
-        discount = get_discount(line)
-        template = f" 🔥🔥 {discount} 🔥🔥 \n 🤑 SUPER SCONTO 🤑  \n 👉 Apri su Amazon {line}"
+        discount = get_product_information(line)
+        template = f" 🔥🔥 {discount} OFF    🔥🔥 \n 🤑 SUPER SCONTO 🤑  \n 👉 Apri su Amazon {line}"
         bot.send_message(text= template, chat_id=group_1_id)
         sleep(3)
