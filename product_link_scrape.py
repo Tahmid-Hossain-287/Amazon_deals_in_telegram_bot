@@ -69,6 +69,7 @@ def all_deals():
             driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
             sleep(random.uniform(1.5, 2.5))
         go_next_page() # Goes to the next page in today's deal page.
+    driver.quit() # Ends the selenium session.
 
 def retrieve_affiliate_link():
     # Copies the affiliate short link and saves on deals.txt file.
