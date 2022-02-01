@@ -31,11 +31,9 @@ driver.set_window_position(250, 70, windowHandle='current')
 
 print('Driver instantiated successfully')
 
-# Launches the today's deal page.
 def launch_deals_page():
-    # driver.get("https://www.amazon.it/")
+    # Launches the today's deal page.
     driver.get("https://www.amazon.it/")
-
     deals_page = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(
             (By.CSS_SELECTOR, '#nav-xshop > a:nth-child(2)')
