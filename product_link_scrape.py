@@ -61,14 +61,14 @@ def all_deals():
             )
                 deals_second_time[item].click()
                 sleep(random.uniform(1.5, 2.5))
-                multiple_deals_to_one_deal()
-                retrieve_affiliate_link()
+                multiple_deals_to_one_deal() # When there is a cluster of deals, it will select the first one.
+                retrieve_affiliate_link() # Copies the affiliate short link and saves on deals.txt file.
             except Exception as e:
                 print(e)
                 pass
             driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
             sleep(random.uniform(1.5, 2.5))
-        go_next_page()
+        go_next_page() # Goes to the next page in today's deal page.
 
 def retrieve_affiliate_link():
     # Copies the affiliate short link and saves on deals.txt file.
