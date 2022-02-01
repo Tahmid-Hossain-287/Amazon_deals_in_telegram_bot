@@ -26,7 +26,7 @@ actions = action_chains.ActionChains(driver)
 driver.set_window_size(1260, 905) # Resizes the window to a specific size.
 driver.set_window_position(250, 70, windowHandle='current')
 
-print('Driver instantiated successfully')
+# print('Driver instantiated successfully')
 
 def launch_deals_page():
     # Launches the today's deal page.
@@ -36,7 +36,7 @@ def launch_deals_page():
             (By.CSS_SELECTOR, '#nav-xshop > a:nth-child(2)')
         )
     )
-    print("deals page found")
+    # print("deals page found")
     deals_page.click()
 
 def all_deals(pages_to_retrieve_upto=1):
@@ -62,14 +62,14 @@ def all_deals(pages_to_retrieve_upto=1):
                     multiple_deals_to_one_deal() # When there is a cluster of deals, it will select the first one.
                     retrieve_affiliate_link() # Copies the affiliate short link and saves on deals.txt file.
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     pass
                 driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
                 sleep(random.uniform(1.5, 2.5))
             go_next_page() # Goes to the next page in today's deal page.
         driver.quit() # Ends the selenium session.
     except Exception as e:
-        print(e)
+        # print(e)
         driver.quit() # Ends the selenium session
 
 def retrieve_affiliate_link():
@@ -91,7 +91,7 @@ def retrieve_affiliate_link():
         with open('deals.txt', 'a') as notebook:
             notebook.write(short_link + "\n")
     except Exception as e:
-        print(e)
+        # print(e)
         pass
     
     
@@ -106,7 +106,7 @@ def go_next_page():
 
     next_button.click()
     sleep(random.uniform(.9, 1.4))
-    print('went to the next page')
+    # print('went to the next page')
     while True: # This while loop is to ensure the change of page.
         if old_link == driver.current_url:
             sleep(random.uniform(1.9, 2.4))
@@ -119,7 +119,7 @@ def multiple_deals_to_one_deal():
     try:
         items = WebDriverWait(driver, 4).until(
                     EC.presence_of_all_elements_located(
-                        (By.CLASS_NAME, 'a-size-base.a-color-base.a-link-normal.a-text-normal')
+                        (By.CLASS_NAME, 'a-size-base.a-color-base')
                     )
                 )
 
