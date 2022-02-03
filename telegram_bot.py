@@ -43,7 +43,15 @@ def get_product_information():
 
         offer_price = re.search('^(.*?)\€', offer_price_element.text).group(0)
 
-        return discount_amount, original_price, offer_price, saved_amount
+        image = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located(
+                (By.ID, 'landingImage')
+            )
+        )
+
+        image_link = image.get_attribute('src')
+
+        return discount_amount, original_price, offer_price, saved_amount, image_link
         
     except Exception as e:
         print(e)
@@ -61,8 +69,13 @@ def send_telegram_message():
                 original_price = discount[1]
                 offer_price = discount[2]
                 saved_amount = discount[3]
-                template = f" 🔥🔥 {discount_amount} OFF 🔥🔥\n 🤑 SUPER SCONTO 🤑\n 💣 Solo {offer_price} ❌Invece di {original_price}\n 💰💲 Risparmiare fino a {saved_amount} 💰💲\n 👉 Apri su Amazon {line}"
-                bot.send_message(text= template, chat_id=group_id)
+                image_link = discount[4]
+                long_url = driver.current_url
+                template = f" 🔥🔥 {discount_amount} OFF 🔥🔥\n 🤑 SUPER SCONTO 🤑\n 💣 SOLO {offer_price} ❌Invece di {original_price}\n 💰💲 Risparmi {saved_amount} 💰💲\n 👉 Apri su Amazon {line}"
+                button_1 = telegram.InlineKeyboardButton(text='📩Invita un amico', url='https://t.me/share/url?url=https://t.me/+DRsQpE_ZD59kODE1')
+                button_2 = telegram.InlineKeyboardButton(text="📱Apri nell'app", url=f'{long_url}')
+                keyboard_inline = telegram.InlineKeyboardMarkup([[button_1, button_2]])
+                bot.send_message(text= f"[\n]({image_link}){template}", parse_mode='markdown', chat_id=group_id, reply_markup=keyboard_inline)
             except Exception as e:
                 print(e)
                 continue    

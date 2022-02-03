@@ -6,7 +6,7 @@ Scraping_bot-Hacker_News
 __pycache__/
 another.txt
 bot.py
-feature.py
+# feature.py
 francesco.txt
 geckodriver.log
 test.py
