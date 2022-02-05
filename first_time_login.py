@@ -13,7 +13,7 @@ from time import sleep
 
 options = Options()
 # Specifying where the cookies will be stored.
-options.add_argument("--user-data-dir=C:\\Users\\Tahmid\\Programming\\telegram_bot\\cookies")
+options.add_argument("--user-data-dir=C:\\cookies")
 # Silences logs on terminal and keeps terminal looking clean.
 os.environ['WDM_LOG_LEVEL'] = '0'
 # Saves driver on project directory.

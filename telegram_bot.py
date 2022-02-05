@@ -51,13 +51,22 @@ def get_product_information():
 
         image_link = image.get_attribute('src')
 
-        return discount_amount, original_price, offer_price, saved_amount, image_link
+        title = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located(
+                (By.ID, 'productTitle')
+            )
+        )
+
+        product_title = title.text.split(", ")[0]
+        
+        return discount_amount, original_price, offer_price, saved_amount, image_link, product_title
         
     except Exception as e:
         print(e)
         pass
 
 def send_telegram_message():
+    check_if_duplicate = []
     with open('deals.txt') as file:
         lines = file.readlines()
         for line in lines:
@@ -65,17 +74,27 @@ def send_telegram_message():
                 driver.get(line)
                 sleep(3) # Pausing is important so as not to hit the limit of telegram message limit of one message per three second.
                 discount = get_product_information()
+                if discount in check_if_duplicate:
+                    continue
+                else:
+                    check_if_duplicate.append(discount)
                 discount_amount = discount[0]
                 original_price = discount[1]
                 offer_price = discount[2]
                 saved_amount = discount[3]
                 image_link = discount[4]
+                product_title = discount[5]
                 long_url = driver.current_url
-                template = f" 🔥🔥 {discount_amount} OFF 🔥🔥\n 🤑 SUPER SCONTO 🤑\n 💣 SOLO {offer_price} ❌Invece di {original_price}\n 💰💲 Risparmi {saved_amount} 💰💲\n 👉 Apri su Amazon {line}"
-                button_1 = telegram.InlineKeyboardButton(text='📩Invita un amico', url='https://t.me/share/url?url=https://t.me/+DRsQpE_ZD59kODE1')
+                # template = f" 🔥🔥 *{discount_amount} OFF* ({image_link})🔥🔥\n 🤑 SUPER SCONTO 🤑\n 💣 *SOLO {offer_price}* ❌Invece di {original_price}\n 💰💲 Risparmi {saved_amount} 💰💲\n 👉 Apri su Amazon {line}\n {product_title}""
+                button_1 = telegram.InlineKeyboardButton(text='📩Invita un amico', url=r'https://t.me/share/url?url=https://t.me/amazoncouponpromo')
                 button_2 = telegram.InlineKeyboardButton(text="📱Apri nell'app", url=f'{long_url}')
                 keyboard_inline = telegram.InlineKeyboardMarkup([[button_1, button_2]])
-                bot.send_message(text= f"[\n]({image_link}){template}", parse_mode='markdown', chat_id=group_id, reply_markup=keyboard_inline)
+                bot.send_message(
+                    text= f" 🔥🔥 *{discount_amount} OFF*[ ]({image_link})🔥🔥\n 🤑 SUPER SCONTO 🤑\n 💣 *SOLO {offer_price}* ❌Invece di {original_price}\n 💰💲 Risparmi {saved_amount} 💰💲\n 👉 Apri su Amazon {line} \n{product_title}",
+                     parse_mode='markdown',
+                      chat_id=group_id,
+                      reply_markup=keyboard_inline
+                      )
             except Exception as e:
                 print(e)
                 continue    
@@ -86,6 +105,6 @@ def send_telegram_message():
     
 
 if __name__ == "__main__":
-    launch_deals_page()
+    launch_deals_page('https://www.amazon.it/')
     send_telegram_message()
 

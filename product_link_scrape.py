@@ -1,3 +1,12 @@
+# Enter the link of the catagory page that you want to scrape here.
+link = r'https://www.amazon.it/deals?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A0%252C%2522presetId%2522%253A%2522deals-collection-headphones-and-music%2522%252C%2522departments%2522%253A%255B%2522412600031%2522%252C%2522473287031%2522%252C%2522473365031%2522%255D%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D'
+
+# Enter upto to what number of page you want to scrape.
+page_number = 2
+
+
+
+
 import os, random
 from selenium import webdriver
 from selenium.webdriver.common import action_chains
@@ -13,7 +22,7 @@ from time import sleep
 
 options = Options()
 # Specifying where the cookies will be stored.
-options.add_argument("--user-data-dir=C:\\Users\\Tahmid\\Programming\\telegram_bot\\cookies")
+options.add_argument("--user-data-dir=C:\\cookies")
 # Silences logs on terminal and keeps terminal looking clean.
 os.environ['WDM_LOG_LEVEL'] = '0'
 # Saves driver on project directory.
@@ -28,16 +37,10 @@ driver.set_window_position(250, 70, windowHandle='current')
 
 # print('Driver instantiated successfully')
 
-def launch_deals_page():
-    # Launches the today's deal page.
-    driver.get("https://www.amazon.it/")
-    deals_page = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, '#nav-xshop > a:nth-child(2)')
-        )
-    )
-    # print("deals page found")
-    deals_page.click()
+def launch_deals_page(url):
+    # Launches the deals page.
+    driver.get(f"{url}")
+    
 
 def all_deals(pages_to_retrieve_upto=1):
     try:
@@ -81,7 +84,7 @@ def retrieve_affiliate_link():
             )
         )
         produce_short_link.click()
-        sleep(random.uniform(.5, 1.1))
+        sleep(random.uniform(1.5, 2.9))
         short_link_element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(
                 (By.ID, 'amzn-ss-text-shortlink-textarea')
@@ -117,11 +120,18 @@ def go_next_page():
 # When there is a cluster of deals, it will select the first one.
 def multiple_deals_to_one_deal():
     try:
-        items = WebDriverWait(driver, 4).until(
-                    EC.presence_of_all_elements_located(
-                        (By.CLASS_NAME, 'a-size-base.a-color-base')
+        try:
+            items = WebDriverWait(driver, 4).until(
+                        EC.presence_of_all_elements_located(
+                            (By.CLASS_NAME, 'a-size-base.a-color-base.a-link-normal.a-text-normal')
+                        )
                     )
-                )
+        except:
+            items = WebDriverWait(driver, 4).until(
+                        EC.presence_of_all_elements_located(
+                            (By.CLASS_NAME, 'a-size-base.a-color-base')
+                        )
+                    )
 
         for i in range(1):
             items[1].click()
@@ -130,10 +140,10 @@ def multiple_deals_to_one_deal():
         return None # The page is a normal item page, does not contain cluster of items. Continue with the rest of the code.
 
 
-    
+
 
 if __name__ == "__main__":
-    launch_deals_page()
-    all_deals(pages_to_retrieve_upto=2)
+    launch_deals_page(url=link)
+    all_deals(pages_to_retrieve_upto=page_number)
     
 
