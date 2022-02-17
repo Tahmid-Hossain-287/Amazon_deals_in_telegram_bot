@@ -1,7 +1,10 @@
 from product_link_scrape import launch_deals_page, driver, WebDriverWait, By, EC, options
 import telegram, re
-from secrets import token, group_id
+from secrets import token, group_id, time_interval_for_each_message, end_time
 from time import sleep
+from datetime import datetime
+
+
 
 # Note that your bot will not be able to send more than 20 messages per minute to the same group.
 bot = telegram.Bot(token=str(token))
@@ -74,7 +77,6 @@ def send_telegram_message():
         for line in lines:
             try:
                 driver.get(line)
-                sleep(3) # Pausing is important so as not to hit the limit of telegram message limit of one message per three second.
                 discount = get_product_information()
                 if discount in check_if_duplicate:
                     continue
@@ -89,8 +91,6 @@ def send_telegram_message():
                 long_url = driver.current_url
                 group_invite = bot.create_chat_invite_link(chat_id=group_id).invite_link
                 polished_invite = "https://t.me/share/url?url=" + str(group_invite.replace("+", "%2B"))
-                print(polished_invite)
-                # template = f" 🔥🔥 *{discount_amount} OFF* ({image_link})🔥🔥\n 🤑 SUPER SCONTO 🤑\n 💣 *SOLO {offer_price}* ❌Invece di {original_price}\n 💰💲 Risparmi {saved_amount} 💰💲\n 👉 Apri su Amazon {line}\n {product_title}""
                 button_1 = telegram.InlineKeyboardButton(text='📩Invita un amico', url=polished_invite)
                 button_2 = telegram.InlineKeyboardButton(text="📱Apri nell'app", url=f'{long_url}')
                 keyboard_inline = telegram.InlineKeyboardMarkup([[button_1, button_2]])
@@ -100,6 +100,13 @@ def send_telegram_message():
                       chat_id=group_id,
                       reply_markup=keyboard_inline
                       )
+                sleep(60 * time_interval_for_each_message) # Pausing is important so as not to hit the limit of telegram message limit of one message per three second.
+                now = datetime.now().time()
+                if now.hour >= end_time:
+                    with open('deals.txt', 'w'):
+                        pass # Clears deals.txt after sending all the advertisements.
+                    driver.quit()
+                    return
             except Exception as e:
                 # print(e)
                 continue    

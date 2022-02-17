@@ -13,7 +13,8 @@ from time import sleep
 
 options = Options()
 # Specifying where the cookies will be stored.
-options.add_argument("--user-data-dir=C:\\cookies")
+cookies_folder = os.path.abspath("cookies")
+options.add_argument(f"--user-data-dir={str(cookies_folder)}")
 # Silences logs on terminal and keeps terminal looking clean.
 os.environ['WDM_LOG_LEVEL'] = '0'
 # Saves driver on project directory.
@@ -28,8 +29,6 @@ driver.set_window_position(250, 70, windowHandle='current')
 
 def launch_login_page():
     driver.get(r'https://www.amazon.it/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.it%2Fyour-account%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=itflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&')
-    sleep(30)
-    driver.quit()
 
 launch_login_page()
 

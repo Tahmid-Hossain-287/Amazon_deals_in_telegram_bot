@@ -1,9 +1,7 @@
-# Enter the link of the catagory page that you want to scrape here.
-link = r'https://www.amazon.it/deals?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A0%252C%2522presetId%2522%253A%2522deals-collection-headphones-and-music%2522%252C%2522departments%2522%253A%255B%2522412600031%2522%252C%2522473287031%2522%252C%2522473365031%2522%255D%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D'
-
-# Enter upto to what number of page you want to scrape.
-page_number = 2
-
+# Enter the url of the amazon page here. 
+link = r"Enter the URL here"
+# Enter the number of pages you want to collect deals from. 
+page_number = 5
 
 
 
@@ -22,7 +20,8 @@ from time import sleep
 
 options = Options()
 # Specifying where the cookies will be stored.
-options.add_argument("--user-data-dir=C:\\cookies")
+cookies_folder = os.path.abspath("cookies")
+options.add_argument(f"--user-data-dir={str(cookies_folder)}")
 # Silences logs on terminal and keeps terminal looking clean.
 os.environ['WDM_LOG_LEVEL'] = '0'
 # Saves driver on project directory.
@@ -35,7 +34,8 @@ actions = action_chains.ActionChains(driver)
 driver.set_window_size(1260, 905) # Resizes the window to a specific size.
 driver.set_window_position(250, 70, windowHandle='current')
 
-# print('Driver instantiated successfully')
+
+print('Driver instantiated successfully')
 
 def launch_deals_page(url):
     # Launches the deals page.
@@ -65,14 +65,14 @@ def all_deals(pages_to_retrieve_upto=1):
                     multiple_deals_to_one_deal() # When there is a cluster of deals, it will select the first one.
                     retrieve_affiliate_link() # Copies the affiliate short link and saves on deals.txt file.
                 except Exception as e:
-                    # print(e)
+                    # print(repr(e))
                     pass
                 driver.get(str(deals_page)) # Goes back to the deals page after obtaining the affiliate link.
                 sleep(random.uniform(1.5, 2.5))
             go_next_page() # Goes to the next page in today's deal page.
         driver.quit() # Ends the selenium session.
     except Exception as e:
-        # print(e)
+        # print(repr(e))
         driver.quit() # Ends the selenium session
 
 def retrieve_affiliate_link():
@@ -94,7 +94,7 @@ def retrieve_affiliate_link():
         with open('deals.txt', 'a') as notebook:
             notebook.write(short_link + "\n")
     except Exception as e:
-        # print(e)
+        # print(repr(e))
         pass
     
     
@@ -109,7 +109,7 @@ def go_next_page():
 
     next_button.click()
     sleep(random.uniform(.9, 1.4))
-    # print('went to the next page')
+    print('went to the next page')
     while True: # This while loop is to ensure the change of page.
         if old_link == driver.current_url:
             sleep(random.uniform(1.9, 2.4))
