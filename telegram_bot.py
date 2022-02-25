@@ -67,7 +67,7 @@ def get_product_information():
         return discount_amount, original_price, offer_price, saved_amount, image_link, product_title
         
     except Exception as e:
-        # print(e)
+        # print(repr(e))
         pass
 
 def send_telegram_message():
@@ -108,7 +108,7 @@ def send_telegram_message():
                     driver.quit()
                     return
             except Exception as e:
-                # print(e)
+                # print(repr(e))
                 continue    
     
     with open('deals.txt', 'w'):
