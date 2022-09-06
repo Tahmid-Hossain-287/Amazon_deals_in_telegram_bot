@@ -1,5 +1,6 @@
 # Amazon_deals_in_telegram_bot
 Bot that throws affiliated amazon deals on telegram.
+You can use this bot to share your amazon affiliated links in telegram groups.
 
 1. Install requirements.txt.
 2. Fill up the secrets.py.
